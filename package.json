@@ -1,0 +1,64 @@
+{
+  "name": "eslint-plugin-relations",
+  "version": "0.0.1",
+  "description": "Controls the way packages can import each other",
+  "main": "dist/es5/index.js",
+  "author": "Anton Korzunov <thekashey@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@theuiteam/lib-builder": "^0.1.3",
+    "@types/eslint": "^7.2.14"
+  },
+  "module": "dist/es2015/index.js",
+  "module:es2019": "dist/es2019/index.js",
+  "types": "dist/es5/index.d.ts",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "dev": "lib-builder dev",
+    "test": "jest",
+    "test:ci": "jest --runInBand --coverage",
+    "build": "lib-builder build",
+    "release": "yarn build && yarn test",
+    "lint": "lib-builder lint",
+    "format": "lib-builder format",
+    "update": "lib-builder update",
+    "prepublish": "yarn build && yarn changelog",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "changelog:rewrite": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
+  },
+  "dependencies": {
+    "eslint-module-utils": "^2.6.1",
+    "nope-validator": "^1.0.2",
+    "tslib": "^2.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "repository": "",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{js,css,json,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "printWidth": 120,
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true
+  }
+}
