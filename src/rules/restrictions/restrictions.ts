@@ -3,7 +3,7 @@ import type { Rule } from 'eslint';
 import { isRelative } from '../../utils/file';
 import { readRulesFromFileSystem } from './configuration-lookup';
 import { resolveAbsolutePath } from './resolver';
-import { matching, asAdoptedRules } from './utils';
+import { matching, asAdoptedRules, relativePath } from './utils';
 
 export const restrictionRule: Rule.RuleModule = {
   meta: {
@@ -53,16 +53,16 @@ export const restrictionRule: Rule.RuleModule = {
     messages: {
       importRestricted: 'Importing `{{what}}` is not allowed from `{{from}}` as it belong to `{{to}}`',
       importRestrictedWithMessage:
-        'Importing `{{what}}` is not allowed from `{{from}}` as it belong to `{{to}}`: {{message}}',
+        'Importing `{{what}}` is not allowed from `{{from}}` as it belong to `{{to}}`\n💡"{{message}}"',
     },
   },
   create(context) {
     const pluginConfiguration = context.options[0] || {};
     const fromLocation = context.getFilename();
     const customRules = pluginConfiguration.rules;
+    const cwd = context.getCwd();
     const ruleGenerator =
-      pluginConfiguration.ruleGenerator ||
-      (customRules ? asAdoptedRules(customRules, context.getCwd()) : readRulesFromFileSystem);
+      pluginConfiguration.ruleGenerator || (customRules ? asAdoptedRules(customRules, cwd) : readRulesFromFileSystem);
 
     if (pluginConfiguration.rules && pluginConfiguration.ruleGenerator) {
       throw new Error('eslint-plugin-relations: rules and ruleGenerator cannot be used simultaneously.');
@@ -91,8 +91,8 @@ export const restrictionRule: Rule.RuleModule = {
                     messageId: result.message ? 'importRestrictedWithMessage' : 'importRestricted',
                     data: {
                       what: imported,
-                      from: String(result.from || 'anywhere'),
-                      to: String(result.to || 'anywhere'),
+                      from: relativePath(result.from, cwd),
+                      to: relativePath(result.to, cwd),
                       message: result.message,
                     },
                   });

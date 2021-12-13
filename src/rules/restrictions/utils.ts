@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import { resolve, relative } from 'path';
 
 import { Rule, RuleSchema } from './types';
 
@@ -38,4 +38,16 @@ export const asAdoptedRules = (rules: Rule[], cwd: string): (() => Rule[][]) => 
   const adopted = [adoptRules(rules, cwd, 'eslintrc')];
 
   return () => adopted;
+};
+
+export const relativePath = (path: string | RegExp, cwd: string): string => {
+  if (locationDefined(path)) {
+    if (typeof path === 'string') {
+      return relative(cwd, path);
+    }
+
+    return String(path);
+  }
+
+  return 'Anywhere';
 };
