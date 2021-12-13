@@ -7,12 +7,14 @@ export const isRelative = (importPath: string): boolean => importPath.startsWith
 export const adoptLocation = (location: string | RegExp, cwd: string): string | RegExp =>
   typeof location === 'string' ? resolve(cwd, location) : location;
 
+const locationDefined = (location: string | RegExp): boolean => Boolean(location && location !== '*');
+
 export const matching = (rule: Rule, from: string, to: string): Rule | false => {
-  if (rule.from && !from.match(rule.from)) {
+  if (locationDefined(rule.from) && !from.match(rule.from)) {
     return false;
   }
 
-  if (rule.to && !to.match(rule.to)) {
+  if (locationDefined(rule.to) && !to.match(rule.to)) {
     return false;
   }
 
@@ -34,8 +36,8 @@ export const adoptRules = (rules: Rule[], location: string, file: string): Rule[
   }));
 };
 
-export const asAdoptedRules = (rules: Rule[]) => {
-  const adoped = [adoptRules(rules, process.cwd(), 'eslint.rc')];
+export const asAdoptedRules = (rules: Rule[], cwd: string) => {
+  const adoped = [adoptRules(rules, cwd, 'eslint.rc')];
 
   return () => adoped;
 };

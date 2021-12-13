@@ -1,0 +1,1 @@
+export { restrictionRule } from './restrictions';
