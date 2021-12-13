@@ -5,7 +5,29 @@ Controls relationships between folders and packages in a monorepo environment.
 # Provided rules
 
 - [relations/correct](#correct) - to autocorrect imports to only allowed paths.
-- [relations/restrictions](#restrictions) - to establish _controlled relationships_ between different places of your application
+- [relations/restrictions](#restrictions) - to establish _controlled relationships_ between different places of your
+  application
+
+# Installation
+
+- add package
+
+```bash
+yarn add eslint-plugin-relations
+```
+
+- add plugin
+
+```js
+module.exports = {
+  plugins: [
+    'relations',
+    // other plugins
+  ],
+};
+```
+
+- configure rules. **Rules are not working without configuration**. There is no preset possible.
 
 # Correct
 
@@ -24,24 +46,28 @@ Because an `autoimport` feature your IDE might provide is not always working. It
 
 ```js
 module.exports = {
-  //...
-  'relations/correct': [
-    'error',
-    {
-      // if you use another tool to derive package->path mapping for typescript
-      tsconfig: 'path-to-your-config',
-      // the one with `"compilerOptions": { "paths": [...] }
+  plugins: ['relations'],
+  rules: {
+    //...
+    'relations/correct': [
+      'error',
+      {
+        // if you use another tool to derive package->path mapping for typescript
+        tsconfig: 'path-to-your-config',
+        // the one with `"compilerOptions": { "paths": [...] }
 
-      // OR
-      // explicit mapping to use
-      pathMapping: {
-        packageName: 'path',
+        // OR
+        // explicit mapping to use
+        pathMapping: {
+          packageName: 'path',
+        },
+
+        // controls "suggestion" over "autofix" behavior
+        // you want this to be 'false' during development and 'true' in precommit
+        autofix: false,
       },
-      // controls "suggestion" over "autofix" behavior
-      // you want this to be 'false' during development and 'true' in precommit
-      autofix: false,
-    },
-  ],
+    ],
+  },
 };
 ```
 
@@ -91,39 +117,42 @@ Can be configured in two ways:
 
 ```js
 module.exports = {
-  //...
-  'relations/restrictions': [
-    'error',
-    {
-      rules: [
-        // platform cannot use packages
-        {
-          // absolute folder
-          from: 'platform',
-          // absolute folder
-          to: 'packages',
-          type: 'restricted',
-          message: "Let's keep them separated",
-        },
-        // "allow" rules should precede "restrict" ones
-        {
-          from: /__tests__/,
-          to: /__tests__/,
-          // allow tests to access tests
-          type: 'allowed',
-          message: 'do not import from tests',
-        },
-        {
-          // anywhere
-          from: '*',
-          //relative folder
-          to: /__tests__/,
-          type: 'restricted',
-          message: 'do not import from tests',
-        },
-      ],
-    },
-  ],
+  plugins: ['relations'],
+  rules: {
+    //...
+    'relations/restrictions': [
+      'error',
+      {
+        rules: [
+          // platform cannot use packages
+          {
+            // absolute folder
+            from: 'platform',
+            // absolute folder
+            to: 'packages',
+            type: 'restricted',
+            message: "Let's keep them separated",
+          },
+          // "allow" rules should precede "restrict" ones
+          {
+            from: /__tests__/,
+            to: /__tests__/,
+            // allow tests to access tests
+            type: 'allowed',
+            message: 'do not import from tests',
+          },
+          {
+            // anywhere
+            from: '*',
+            //relative folder
+            to: /__tests__/,
+            type: 'restricted',
+            message: 'do not import from tests',
+          },
+        ],
+      },
+    ],
+  },
 };
 ```
 

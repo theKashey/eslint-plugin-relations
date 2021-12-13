@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@theuiteam/lib-builder": "^0.1.4",
-    "@types/eslint": "^7.2.14"
+    "@types/eslint": "^8.0.0"
   },
   "files": [
     "dist"

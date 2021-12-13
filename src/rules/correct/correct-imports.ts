@@ -42,6 +42,7 @@ const getMapping = (options: { tsconfig?: string; pathMapping?: PathMapping }): 
 export const correctImportRule: Rule.RuleModule = {
   meta: {
     type: 'suggestion',
+    hasSuggestions: true,
     fixable: 'code',
 
     docs: {
@@ -142,7 +143,8 @@ export const correctImportRule: Rule.RuleModule = {
 
         // path found, but need to be fixed
         if (ref && ref !== imported) {
-          const fixer = (fixer: Rule.RuleFixer) => fixer.replaceText(node.source, `"${ref}"`);
+          const q = node.source.raw![0];
+          const fixer = (fixer: Rule.RuleFixer) => fixer.replaceText(node.source, `${q}${ref}${q}`);
 
           context.report({
             node,

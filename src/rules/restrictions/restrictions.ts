@@ -31,8 +31,8 @@ export const restrictionRule: Rule.RuleModule = {
             items: {
               type: 'object',
               properties: {
-                to: { type: 'string' },
-                from: { type: 'string' },
+                to: { type: ['string', 'object'] },
+                from: { type: ['string', 'object'] },
                 // severity: {type: 'string'},
                 type: { type: 'string', enum: ['restricted', 'allowed'] },
                 message: { type: 'string' },
