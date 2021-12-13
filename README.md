@@ -1,17 +1,17 @@
-# [WIP] eslint-plugin-relations
+# eslint-plugin-relations 👩‍💻🤝👮🏻‍♂️
 
 Controls relationships between folders and packages in a monorepo environment.
 
 # Provided rules
 
-- `relations/correct` - to autocorrect imports to only allowed paths.
-- `relations/restrictions` - to establish _controlled relationships_ between different places of your application
+- [relations/correct](#correct) - to autocorrect imports to only allowed paths.
+- [relations/restrictions](#restrictions) - to establish _controlled relationships_ between different places of your application
 
 # Correct
 
 ## Why
 
-Because an `autoimport` feature you IDE might provide is not always working. It might result with a:
+Because an `autoimport` feature your IDE might provide is not always working. It might result with a:
 
 - relative import, not using package name as it should
 - access "src" folder, or anything else it should not
@@ -22,27 +22,27 @@ Because an `autoimport` feature you IDE might provide is not always working. It 
 
 ### inside `eslintrc.js`
 
-```json
-{
+```js
+module.exports = {
   //...
-  "relations/correct": [
-    "error",
+  'relations/correct': [
+    'error',
     {
       // if you use another tool to derive package->path mapping for typescript
-      "tsconfig": "path-to-your-config",
+      tsconfig: 'path-to-your-config',
       // the one with `"compilerOptions": { "paths": [...] }
 
       // OR
       // explicit mapping to use
-      "pathMapping": {
-        "packageName": "path"
+      pathMapping: {
+        packageName: 'path',
       },
       // controls "suggestion" over "autofix" behavior
       // you want this to be 'false' during development and 'true' in precommit
-      "autofix": false
-    }
-  ]
-}
+      autofix: false,
+    },
+  ],
+};
 ```
 
 # Restrictions
@@ -89,8 +89,8 @@ Can be configured in two ways:
 
 ### inside `eslint.rc`
 
-```json
-{
+```js
+module.exports = {
   //...
   'relations/restrictions': [
     'error',
@@ -103,7 +103,7 @@ Can be configured in two ways:
           // absolute folder
           to: 'packages',
           type: 'restricted',
-          message: 'Let\'s keep them separated'
+          message: "Let's keep them separated",
         },
         // "allow" rules should precede "restrict" ones
         {
@@ -111,7 +111,7 @@ Can be configured in two ways:
           to: /__tests__/,
           // allow tests to access tests
           type: 'allowed',
-          message: 'do not import from tests'
+          message: 'do not import from tests',
         },
         {
           // anywhere
@@ -119,12 +119,12 @@ Can be configured in two ways:
           //relative folder
           to: /__tests__/,
           type: 'restricted',
-          message: 'do not import from tests'
+          message: 'do not import from tests',
         },
-      ]
-    }
-  ]
-}
+      ],
+    },
+  ],
+};
 ```
 
 ### See also
