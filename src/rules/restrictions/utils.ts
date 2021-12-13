@@ -2,8 +2,6 @@ import { resolve } from 'path';
 
 import { Rule, RuleSchema } from './types';
 
-export const isRelative = (importPath: string): boolean => importPath.startsWith('.');
-
 export const adoptLocation = (location: string | RegExp, cwd: string): string | RegExp =>
   typeof location === 'string' ? resolve(cwd, location) : location;
 

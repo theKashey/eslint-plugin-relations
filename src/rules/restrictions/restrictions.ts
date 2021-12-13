@@ -1,8 +1,9 @@
 import type { Rule } from 'eslint';
 
+import { isRelative } from '../../utils/file';
 import { readRulesFromFileSystem } from './configuration-lookup';
 import { resolveAbsolutePath } from './resolver';
-import { isRelative, matching, asAdoptedRules } from './utils';
+import { matching, asAdoptedRules } from './utils';
 
 export const restrictionRule: Rule.RuleModule = {
   meta: {

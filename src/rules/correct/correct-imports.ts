@@ -2,33 +2,17 @@
 // Rule Definition
 //------------------------------------------------------------------------------
 
-import { resolve, dirname, extname } from 'path';
+import { resolve, dirname } from 'path';
 
 import { Rule } from 'eslint';
-import { findUpSync } from 'find-up';
 import { buildWordTrie, SearchWordTrie } from 'search-trie';
 
+import { filename, isRelative } from '../../utils/file';
 import { fromTSConfig } from './from-tsconfig';
+import { isLocal } from './package-utils';
 import { PathMapping } from './types';
 
 type WordTrie = SearchWordTrie<string>;
-
-/**
- * file is relative (not absolute)
- */
-const isRelative = (importPath: string): boolean => importPath.startsWith('.');
-
-const filename = (file: string): string => file.substr(0, file.length - extname(file).length);
-
-/**
- * file is defined inside the current package
- */
-const isLocal = (importPath: string, sourceFile: string): boolean => {
-  const nearestPackageLocation = dirname(findUpSync('package.json', { cwd: dirname(sourceFile) })!);
-  const baseName = dirname(resolve(dirname(sourceFile), importPath));
-
-  return baseName.includes(nearestPackageLocation);
-};
 
 /**
  * finds nearest reference in the trie
