@@ -1,9 +1,9 @@
 import { dirname, resolve } from 'path';
 
-import { findUpSync } from 'find-up';
+import findUp from 'find-up';
 
 const findNearestPackageBoundary = (sourceFile: string): string => {
-  const packageFile = findUpSync('package.json', { cwd: dirname(sourceFile) })!;
+  const packageFile = findUp.sync('package.json', { cwd: dirname(sourceFile) })!;
   const packageData = require(packageFile);
 
   if (packageData.name) {

@@ -34,8 +34,8 @@ export const adoptRules = (rules: Rule[], location: string, file: string): Rule[
   }));
 };
 
-export const asAdoptedRules = (rules: Rule[], cwd: string) => {
-  const adoped = [adoptRules(rules, cwd, 'eslint.rc')];
+export const asAdoptedRules = (rules: Rule[], cwd: string): (() => Rule[][]) => {
+  const adopted = [adoptRules(rules, cwd, 'eslintrc')];
 
-  return () => adoped;
+  return () => adopted;
 };

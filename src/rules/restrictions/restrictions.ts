@@ -20,7 +20,11 @@ export const restrictionRule: Rule.RuleModule = {
       {
         type: 'object',
         properties: {
-          ignoreRelative: { type: 'boolean', default: true },
+          ignoreRelative: {
+            description: 'ignores any relative imports. Recommended feature for package-only linting',
+            type: 'boolean',
+            default: false,
+          },
           rules: {
             type: 'array',
             minItems: 0,
@@ -29,16 +33,17 @@ export const restrictionRule: Rule.RuleModule = {
               properties: {
                 to: { type: 'string' },
                 from: { type: 'string' },
-                severity: { type: 'string' },
-                type: { type: 'string' },
+                // severity: {type: 'string'},
+                type: { type: 'string', enum: ['restricted', 'allowed'] },
                 message: { type: 'string' },
               },
               additionalProperties: false,
             },
           },
           ruleGenerator: {
+            description: 'total override for rule generator',
             type: 'function',
-            default: readRulesFromFileSystem,
+            default: undefined,
           },
         },
         additionalProperties: false,
@@ -56,11 +61,10 @@ export const restrictionRule: Rule.RuleModule = {
     const fromLocation = context.getFilename();
     const customRules = pluginConfiguration.rules;
     const ruleGenerator =
-      pluginConfiguration.ruleGenerator || customRules
-        ? asAdoptedRules(customRules, context.getCwd())
-        : readRulesFromFileSystem;
+      pluginConfiguration.ruleGenerator ||
+      (customRules ? asAdoptedRules(customRules, context.getCwd()) : readRulesFromFileSystem);
 
-    if (pluginConfiguration.rules && pluginConfiguration.resolveRules) {
+    if (pluginConfiguration.rules && pluginConfiguration.ruleGenerator) {
       throw new Error('eslint-plugin-relations: rules and ruleGenerator cannot be used simultaneously.');
     }
 
