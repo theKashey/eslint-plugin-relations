@@ -76,7 +76,7 @@ module.exports = {
 
 ## Why
 
-Because of [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe)
+Because of [Rock paper scissors](https://en.wikipedia.org/wiki/Rock_paper_scissors)
 , [Law of Demeter](https://en.wikipedia.org/wiki/Law_of_Demeter)
 , [Abstraction Layers](https://en.wikipedia.org/wiki/Abstraction_layer)
 and [Hexagonal Architecture](https://en.wikipedia.org/wiki/Multitier_architecture).
