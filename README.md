@@ -179,8 +179,13 @@ module.exports = {
 
 ### via `.relations` files
 
-One can put `.relations` (js,ts,json) files with the rule definitions on various places to have "per-folder"
+> this is a recommended way
+
+One can put `.relations` (js,ts,json) files with the rule definitions at **various places** to have "per-folder"
 configuration.
+
+**All** `.relation` files in-and-above "source" and "destination" will be merged, with lower ones overriding the top ones, and applied.
+This can create self-contained definition of "layers and fences" among your application.
 
 ```js
 //packages/core/.relations.js
