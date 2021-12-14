@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-relations",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Controls the way packages can import each other",
   "main": "dist/es5/index.js",
   "author": "Anton Korzunov <thekashey@gmail.com>",
