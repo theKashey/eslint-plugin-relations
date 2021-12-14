@@ -28,7 +28,7 @@ const cachedLookup = (location: string, mask: string, matches: Array<[string, Ru
   const rules = location in ruleCache ? ruleCache[location] : loadRules(location, mask);
   ruleCache[location] = rules;
 
-  if (rules !== null) {
+  if (rules && rules.length) {
     matches.push([location, rules]);
   }
 
@@ -42,5 +42,9 @@ export const readRulesFromFileSystem = (from: string, to: string, mask = '.relat
   return matches
     .sort((a, b) => b[0].length - a[0].length)
     .map((x) => x[1])
-    .flat(1);
+    .reduce((acc, items) => {
+      acc.push(...items);
+
+      return acc;
+    }, []);
 };
