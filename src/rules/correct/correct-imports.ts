@@ -10,7 +10,7 @@ import { buildWordTrie, SearchWordTrie } from 'search-trie';
 import { filename, isRelative } from '../../utils/file';
 import { fromTSConfig } from './from-tsconfig';
 import { isLocal } from './package-utils';
-import { PathMapping } from './types';
+import { ConfigurationPathMapping, PathMapping } from './types';
 
 type WordTrie = SearchWordTrie<string>;
 
@@ -27,9 +27,9 @@ const findReference = (absolutePath: string, lookUp: WordTrie): string | undefin
   return undefined;
 };
 
-const getMapping = (options: { tsconfig?: string; pathMapping?: PathMapping }): PathMapping => {
+const getMapping = (options: { tsconfig?: string; pathMapping?: ConfigurationPathMapping }): PathMapping => {
   if (options.pathMapping) {
-    return options.pathMapping;
+    return Object.entries(options.pathMapping);
   }
 
   if (options.tsconfig) {
@@ -62,7 +62,6 @@ export const correctImportRule: Rule.RuleModule = {
           },
           tsconfig: {
             description: 'A path to tsconfig file.',
-            required: false,
             type: 'string',
           },
           pathMapping: {
@@ -76,8 +75,9 @@ export const correctImportRule: Rule.RuleModule = {
 
     messages: {
       importShouldUseLocalName: "Package '{{what}}' should be imported as '{{how}}'",
-      importNotResolved:
-        "Path '{{what}}' cannot be found. Tried absolute path: {{how}}. Check or update configuration source",
+      absoluteImportNotResolved: "Package '{{what}}' cannot be found. Check or update configuration source",
+      relativeImportNotResolved:
+        "Package '{{what}}' cannot be found. Tried absolute path: {{how}}. Check or update configuration source",
     },
   },
   create(context) {
@@ -132,13 +132,25 @@ export const correctImportRule: Rule.RuleModule = {
               pathToName
             );
 
-        // importing something from outside, but path cannot be resolved
-        if (!ref && isRelativeImport) {
-          context.report({
-            node,
-            messageId: 'importNotResolved',
-            data: { what: imported, how: resolve(dirname(currentFile), imported) },
-          });
+        console.log(ref, isRelativeImport);
+
+        if (!ref) {
+          // importing something from outside, but path cannot be resolved
+          if (isRelativeImport) {
+            context.report({
+              node,
+              messageId: 'relativeImportNotResolved',
+              data: { what: imported, how: resolve(dirname(currentFile), imported) },
+            });
+          } else {
+            context.report({
+              node,
+              messageId: 'absoluteImportNotResolved',
+              data: { what: imported },
+            });
+          }
+
+          return;
         }
 
         // path found, but need to be fixed

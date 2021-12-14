@@ -1,3 +1,5 @@
+import { dirname, resolve } from 'path';
+
 import type { Rule } from 'eslint';
 
 import { isRelative } from '../../utils/file';
@@ -21,7 +23,8 @@ export const restrictionRule: Rule.RuleModule = {
         type: 'object',
         properties: {
           ignoreRelative: {
-            description: 'ignores any relative imports. Recommended feature for package-only linting',
+            description:
+              'ignores any relative imports. Recommended feature for package-level relations only linting. Will not be able to handle files and folders restriction',
             type: 'boolean',
             default: false,
           },
@@ -41,8 +44,8 @@ export const restrictionRule: Rule.RuleModule = {
             },
           },
           ruleGenerator: {
-            description: 'total override for rule generator',
-            type: 'function',
+            description: 'A function to total override for rule generator',
+            type: undefined,
             default: undefined,
           },
         },
@@ -77,29 +80,27 @@ export const restrictionRule: Rule.RuleModule = {
           return;
         }
 
-        const toLocation = relative ? imported : resolveAbsolutePath(imported, context);
+        const toLocation = relative ? resolve(dirname(fromLocation), imported) : resolveAbsolutePath(imported, context);
 
         if (toLocation) {
-          for (const ruleSet of ruleGenerator([toLocation, fromLocation])) {
-            for (const rule of ruleSet) {
-              const result = matching(rule, fromLocation, toLocation);
+          for (const rule of ruleGenerator(fromLocation, toLocation)) {
+            const result = matching(rule, fromLocation, toLocation);
 
-              if (result) {
-                if (result.type === 'restricted') {
-                  context.report({
-                    node,
-                    messageId: result.message ? 'importRestrictedWithMessage' : 'importRestricted',
-                    data: {
-                      what: imported,
-                      from: relativePath(result.from, cwd),
-                      to: relativePath(result.to, cwd),
-                      message: result.message,
-                    },
-                  });
-                }
-
-                return;
+            if (result) {
+              if (result.type === 'restricted') {
+                context.report({
+                  node,
+                  messageId: result.message ? 'importRestrictedWithMessage' : 'importRestricted',
+                  data: {
+                    what: imported,
+                    from: relativePath(result.from, cwd),
+                    to: relativePath(result.to, cwd),
+                    message: result.message,
+                  },
+                });
               }
+
+              return;
             }
           }
         }

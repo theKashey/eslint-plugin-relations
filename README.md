@@ -10,15 +10,16 @@ Controls relationships between folders and packages in a monorepo environment.
 
 # Installation
 
-- add package
+- add the package
 
 ```bash
 yarn add eslint-plugin-relations
 ```
 
-- add plugin
+- add the plugin to eslint config
 
 ```js
+// eslintrc.js
 module.exports = {
   plugins: [
     'relations',
@@ -27,7 +28,7 @@ module.exports = {
 };
 ```
 
-- configure rules. **Rules are not working without configuration**. There is no preset possible.
+- configure rules. **Rules are not working without configuration**. There is no _default_ preset possible.
 
 # Correct
 
@@ -113,7 +114,7 @@ they should not use commands.
 
 Can be configured in two ways:
 
-### inside `eslint.rc`
+### via `eslint.rc`
 
 ```js
 module.exports = {
@@ -154,6 +155,48 @@ module.exports = {
     ],
   },
 };
+```
+
+## via `ruleGenerator`
+
+A custom function to return rules to be used between locationFrom and locationTo
+
+```js
+// eslintrc.js
+module.exports = {
+  plugins: ['relations'],
+  rules: {
+    //...
+    'relations/restrictions': [
+      'error',
+      {
+        ruleGenerator: (fromFile, toFile) => [rule1, rule2],
+      },
+    ],
+  },
+};
+```
+
+### via `.relations` files
+
+One can put `.relations` (js,ts,json) files with the rule definitions on various places to have "per-folder"
+configuration.
+
+```js
+//packages/core/.relations.js
+module.exports = [
+  // allow internal access (from/to the same location)
+  {
+    from: '.',
+    to: '.',
+    type: 'allowed',
+  },
+  // prevent access to this folder (from the outside)
+  {
+    to: '.',
+    type: 'restricted',
+  },
+];
 ```
 
 ### See also

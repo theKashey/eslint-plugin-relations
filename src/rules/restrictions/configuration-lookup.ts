@@ -1,5 +1,6 @@
 import { dirname, join } from 'path';
 
+import { requireConfigurationFile } from '../../utils/require-indirection';
 import { Rule } from './types';
 import { adoptRules } from './utils';
 
@@ -11,7 +12,7 @@ const loadRules = (location: string, mask: string): Rule[] | null => {
   const file = join(location, mask);
 
   try {
-    return adoptRules(require(file), location, file);
+    return adoptRules(requireConfigurationFile(file), location, file);
   } catch (e) {
     return [];
   }
@@ -19,19 +20,27 @@ const loadRules = (location: string, mask: string): Rule[] | null => {
 
 const ruleCache: Record<string, Rule[] | null> = {};
 
-const cachedLookup = (location: string, mask: string, matches: Rule[][]) => {
+const cachedLookup = (location: string, mask: string, matches: Array<[string, Rule[]]>) => {
+  if (location === '/') {
+    return;
+  }
+
   const rules = location in ruleCache ? ruleCache[location] : loadRules(location, mask);
   ruleCache[location] = rules;
 
   if (rules !== null) {
-    cachedLookup(dirname(location), mask, matches);
-    matches.push(rules);
+    matches.push([location, rules]);
   }
+
+  cachedLookup(dirname(location), mask, matches);
 };
 
-export const readRulesFromFileSystem = (locations: string[], mask = '.relations'): Rule[][] => {
-  const matches: Rule[][] = [];
-  locations.forEach((location) => cachedLookup(location, mask, matches));
+export const readRulesFromFileSystem = (from: string, to: string, mask = '.relations'): Rule[] => {
+  const matches: Array<[string, Rule[]]> = [];
+  [dirname(from), dirname(to)].forEach((location) => cachedLookup(location, mask, matches));
 
-  return matches;
+  return matches
+    .sort((a, b) => b[0].length - a[0].length)
+    .map((x) => x[1])
+    .flat(1);
 };
