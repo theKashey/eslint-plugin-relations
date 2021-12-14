@@ -11,11 +11,7 @@ const loadRules = (location: string, mask: string): Rule[] | null => {
 
   const file = join(location, mask);
 
-  try {
-    return adoptRules(requireConfigurationFile(file), location, file);
-  } catch (e) {
-    return [];
-  }
+  return adoptRules(requireConfigurationFile(file), location, file);
 };
 
 const ruleCache: Record<string, Rule[] | null> = {};
