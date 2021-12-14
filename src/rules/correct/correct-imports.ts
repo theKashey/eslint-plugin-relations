@@ -132,8 +132,6 @@ export const correctImportRule: Rule.RuleModule = {
               pathToName
             );
 
-        console.log(ref, isRelativeImport);
-
         if (!ref) {
           // importing something from outside, but path cannot be resolved
           if (isRelativeImport) {
@@ -143,11 +141,13 @@ export const correctImportRule: Rule.RuleModule = {
               data: { what: imported, how: resolve(dirname(currentFile), imported) },
             });
           } else {
-            context.report({
-              node,
-              messageId: 'absoluteImportNotResolved',
-              data: { what: imported },
-            });
+            return;
+            // do not report unknown paths. Just skip
+            // context.report({
+            //   node,
+            //   messageId: 'absoluteImportNotResolved',
+            //   data: { what: imported },
+            // });
           }
 
           return;

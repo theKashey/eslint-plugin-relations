@@ -1,3 +1,5 @@
+import { resolve } from 'path';
+
 import { RuleTester } from 'eslint';
 
 import { ruleForModule } from '../../../utils/test-utils';
@@ -41,10 +43,15 @@ describe('correct-imports', () => {
       ruleForModule(
         {
           code: `
-          import a from 'c';          
+          import a from '../c';          
           `,
           options,
-          errors: ["Package 'c' cannot be found. Check or update configuration source"],
+          errors: [
+            `Package '../c' cannot be found. Tried absolute path: ${resolve(
+              process.cwd(),
+              '../c'
+            )}. Check or update configuration source`,
+          ],
         },
         'b.js'
       ),
