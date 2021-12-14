@@ -35,6 +35,26 @@ describe('restrictionRule:rules', () => {
         },
         join(process.cwd(), './c.js')
       ),
+      // can import nested `to`
+      ruleForModule(
+        {
+          code: `
+          import a from './any-b';          
+          `,
+          options,
+        },
+        join(process.cwd(), './b/anyfile.js')
+      ),
+      // can import nested `from`
+      ruleForModule(
+        {
+          code: `
+          import a from './any-c';          
+          `,
+          options,
+        },
+        join(process.cwd(), './c/index.js/anyfile.js')
+      ),
     ],
     invalid: [
       ruleForModule(

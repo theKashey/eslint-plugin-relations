@@ -95,7 +95,7 @@ export const restrictionRule: Rule.RuleModule = {
                     what: imported,
                     from: relativePath(result.from, cwd),
                     to: relativePath(result.to, cwd),
-                    message: result.message,
+                    message: result.message || '',
                   },
                 });
               }
