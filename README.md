@@ -206,6 +206,13 @@ module.exports = [
 - [depcheck](https://github.com/depcheck/depcheck) - we strongly recommend using `depcheck` to keep your package
   relations up-to-date.
 
+# Speed
+
+All rules are highly optimized:
+
+- `relations/correct-imports` uses `trie` structure, and is not even visible in eslint timing report
+- `relations/restrict` takes roughly 3% of whole linting time. Using `.relation` files or `ruleGenerator` can greatly reduce the time (via reducing the number of rules to apply)
+
 # Licence
 
 MIT
