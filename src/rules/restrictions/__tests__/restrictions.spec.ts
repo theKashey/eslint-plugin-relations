@@ -20,6 +20,16 @@ describe('restrictionRule:rules', () => {
           type: 'restricted',
           message: 'isolation',
         },
+        {
+          from: './d/*',
+          type: 'restricted',
+          message: 'isolation',
+        },
+        {
+          to: './f/*',
+          type: 'restricted',
+          message: 'isolation',
+        },
       ],
     },
   ];
@@ -63,7 +73,9 @@ describe('restrictionRule:rules', () => {
           import a from './b';          
           `,
           options,
-          errors: ['Importing `./b` is not allowed from `Anywhere` as it belong to `b`\n' + '💡"keep out"'],
+          errors: [
+            'eslint-config: Importing `./b` is not allowed from `Anywhere` as it belong to `b`\n' + '💡"keep out"',
+          ],
         },
         join(process.cwd(), './c.js')
       ),
@@ -73,9 +85,112 @@ describe('restrictionRule:rules', () => {
           import a from './any';          
           `,
           options,
-          errors: ['Importing `./any` is not allowed from `c/index.js` as it belong to `Anywhere`\n' + '💡"isolation"'],
+          errors: [
+            'eslint-config: Importing `./any` is not allowed from `c/index.js` as it belong to `Anywhere`\n' +
+              '💡"isolation"',
+          ],
         },
         join(process.cwd(), './c/index.js')
+      ),
+    ],
+  });
+
+  describe('glob', () => {
+    ruleTester.run('restrictionRule-from-d', restrictionRule, {
+      valid: [
+        // matches specific file
+        ruleForModule(
+          {
+            code: `
+          import a from '../any-c';          
+          `,
+            options,
+          },
+          join(process.cwd(), './c/otherfile.js')
+        ),
+        ruleForModule(
+          {
+            code: `
+          import a from '../a/file2.js';          
+          `,
+            options,
+          },
+          join(process.cwd(), './d/a/file.js')
+        ),
+      ],
+      invalid: [
+        // matches specific file
+        ruleForModule(
+          {
+            code: `
+          import a from '../any-c';          
+          `,
+            options,
+            errors: [
+              'eslint-config: Importing `../any-c` is not allowed from `./d/*` as it belong to `Anywhere`\n' +
+                '💡"isolation"',
+            ],
+          },
+          join(process.cwd(), './d/any-file.js')
+        ),
+        // matches specific file
+        ruleForModule(
+          {
+            code: `
+          import a from '../b/file.js';          
+          `,
+            options,
+            errors: [
+              'eslint-config: Importing `../b/file.js` is not allowed from `./d/*` as it belong to `Anywhere`\n' +
+                '💡"isolation"',
+            ],
+          },
+          join(process.cwd(), './d/a/file.js')
+        ),
+      ],
+    });
+  });
+
+  ruleTester.run('restrictionRule-to-f', restrictionRule, {
+    valid: [
+      ruleForModule(
+        {
+          code: `
+          import a from '../a/file2.js';          
+          `,
+          options,
+        },
+        join(process.cwd(), './f/a/file.js')
+      ),
+    ],
+    invalid: [
+      // matches specific file
+      ruleForModule(
+        {
+          code: `
+          import a from './any-c/other';          
+          `,
+          options,
+          errors: [
+            'eslint-config: Importing `./any-c/other` is not allowed from `Anywhere` as it belong to `./f/*`\n' +
+              '💡"isolation"',
+          ],
+        },
+        join(process.cwd(), './f/any-file.js')
+      ),
+      // matches specific file
+      ruleForModule(
+        {
+          code: `
+          import a from '../b/file.js';          
+          `,
+          options,
+          errors: [
+            'eslint-config: Importing `../b/file.js` is not allowed from `Anywhere` as it belong to `./f/*`\n' +
+              '💡"isolation"',
+          ],
+        },
+        join(process.cwd(), './f/a/file.js')
       ),
     ],
   });
@@ -132,7 +247,7 @@ describe('restrictionRule:generator', () => {
           import a from './b';          
           `,
           options,
-          errors: ['Importing `./b` is not allowed from `Anywhere` as it belong to `b`\n' + '💡"keep out"'],
+          errors: ['generator: Importing `./b` is not allowed from `Anywhere` as it belong to `b`\n' + '💡"keep out"'],
         },
         join(process.cwd(), './c.js')
       ),

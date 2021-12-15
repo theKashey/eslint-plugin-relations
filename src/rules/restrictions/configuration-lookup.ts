@@ -1,7 +1,7 @@
-import { dirname, join } from 'path';
+import { dirname, join, relative } from 'path';
 
 import { requireConfigurationFile } from '../../utils/require-indirection';
-import { Rule } from './types';
+import { Rule, SourceRule } from './types';
 import { adoptRules } from './utils';
 
 const loadRules = (location: string, mask: string): Rule[] | null => {
@@ -11,12 +11,12 @@ const loadRules = (location: string, mask: string): Rule[] | null => {
 
   const file = join(location, mask);
 
-  return adoptRules(requireConfigurationFile(file), location, file);
+  return adoptRules(requireConfigurationFile(file), location, relative(process.cwd(), file));
 };
 
 const ruleCache: Record<string, Rule[] | null> = {};
 
-const cachedLookup = (location: string, mask: string, matches: Array<[string, Rule[]]>) => {
+const cachedLookup = (location: string, mask: string, matches: Array<[string, SourceRule[]]>) => {
   if (location === '/') {
     return;
   }

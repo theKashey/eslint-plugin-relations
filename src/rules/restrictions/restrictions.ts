@@ -54,9 +54,10 @@ export const restrictionRule: Rule.RuleModule = {
     ],
 
     messages: {
-      importRestricted: 'Importing `{{what}}` is not allowed from `{{from}}` as it belong to `{{to}}`',
+      importRestricted:
+        '{{configurationSource}}: Importing `{{what}}` is not allowed from `{{from}}` as it belong to `{{to}}`',
       importRestrictedWithMessage:
-        'Importing `{{what}}` is not allowed from `{{from}}` as it belong to `{{to}}`\n💡"{{message}}"',
+        '{{configurationSource}}: Importing `{{what}}` is not allowed from `{{from}}` as it belong to `{{to}}`\n💡"{{message}}"',
     },
   },
   create(context) {
@@ -93,8 +94,9 @@ export const restrictionRule: Rule.RuleModule = {
                   messageId: result.message ? 'importRestrictedWithMessage' : 'importRestricted',
                   data: {
                     what: imported,
-                    from: relativePath(result.from, cwd),
-                    to: relativePath(result.to, cwd),
+                    from: relativePath(result.from, result.sourceRule?.from, cwd),
+                    to: relativePath(result.to, result.sourceRule?.to, cwd),
+                    configurationSource: result.file || 'generator',
                     message: result.message || '',
                   },
                 });

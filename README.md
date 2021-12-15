@@ -134,8 +134,17 @@ module.exports = {
             type: 'restricted',
             message: "Let's keep them separated",
           },
+          // one page cannot use another
+          {
+            // glob support!
+            // note: 'pages/a' can assess 'pages/a', but not 'pages/b'
+            to: 'pages/*',
+            type: 'restricted',
+            message: 'pages are isolated',
+          },
           // "allow" rules should precede "restrict" ones
           {
+            // custom RegExp
             from: /__tests__/,
             to: /__tests__/,
             // allow tests to access tests
@@ -184,8 +193,8 @@ module.exports = {
 One can put `.relations` (js,ts,json) files with the rule definitions at **various places** to have "per-folder"
 configuration.
 
-**All** `.relation` files in-and-above "source" and "destination" will be merged, with lower ones overriding the top ones, and applied.
-This can create self-contained definition of "layers and fences" among your application.
+**All** `.relation` files in-and-above "source" and "destination" will be merged, with lower ones overriding the top
+ones, and applied. This can create self-contained definition of "layers and fences" among your application.
 
 ```js
 //packages/core/.relations.js
@@ -216,7 +225,8 @@ module.exports = [
 All rules are highly optimized:
 
 - `relations/correct-imports` uses `trie` structure, and is not even visible in eslint timing report
-- `relations/restrict` takes roughly 3% of whole linting time. Using `.relation` files or `ruleGenerator` can greatly reduce the time (via reducing the number of rules to apply)
+- `relations/restrict` takes roughly 3% of whole linting time. Using `.relation` files or `ruleGenerator` can greatly
+  reduce the time (via reducing the number of rules to apply)
 
 # Licence
 

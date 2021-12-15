@@ -73,7 +73,9 @@ describe('restrictionRule:file-based', () => {
           import a from './b';          
           `,
           options,
-          errors: ['Importing `./b` is not allowed from `Anywhere` as it belong to `a/b`\n' + '💡"top control"'],
+          errors: [
+            'a/.relations: Importing `./b` is not allowed from `Anywhere` as it belong to `a/b`\n' + '💡"top control"',
+          ],
         },
         join(process.cwd(), './a/d.js')
       ),

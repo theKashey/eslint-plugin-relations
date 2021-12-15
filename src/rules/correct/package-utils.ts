@@ -9,7 +9,7 @@ const findNearestPackageBoundary = (sourceFile: string): string => {
   if (packageData.name) {
     return packageFile;
   } else {
-    return findNearestPackageBoundary(packageFile);
+    return findNearestPackageBoundary(dirname(packageFile));
   }
 };
 
