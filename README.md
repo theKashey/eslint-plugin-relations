@@ -186,6 +186,17 @@ module.exports = {
 };
 ```
 
+Paths(`from` and `to`) from rule generator are expected to be absolute (or regexp). You might need an exported helper to
+handle this
+
+```ts
+import { adoptLocation } from 'eslint-plugin-relations';
+
+const rule = {
+  to: adoptLocation(path /* or glob*/, cwd),
+};
+```
+
 ### via `.relations` files
 
 > this is a recommended way
@@ -211,6 +222,28 @@ module.exports = [
     type: 'restricted',
   },
 ];
+```
+
+## Test helpers
+
+It's important to test relations in order to keep boundaries active. Just think about it - if the rule is triggered only
+when you break it, and you do not breaking it - how one can know it's actually working?
+
+There are two ways:
+
+- import something you should now and suppress eslint rule. If checked using `--report-unused-disable-directives`,
+  then "not violation" will generate an error
+- or you can use programatic helper exposed from this package
+
+```ts
+import { resolveRelation } from 'eslint-plugin-relations';
+
+resolveRelation(from, to, options); // => Rule | undefined
+// match given rules
+resolveRelation(from, to, { rules: [{}] }); // => Rule | undefined
+// autodiscover from .relation files
+resolveRelation(from, to); // => Rule | undefined
+resolveRelation(from, to, { cwd: baseDir }); // => Rule | undefined
 ```
 
 ### See also

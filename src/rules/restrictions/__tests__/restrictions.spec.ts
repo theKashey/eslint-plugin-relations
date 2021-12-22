@@ -4,6 +4,7 @@ import { RuleTester } from 'eslint';
 
 import { ruleForModule } from '../../../utils/test-utils';
 import { restrictionRule } from '../restrictions';
+import { adoptLocation } from '../utils';
 
 describe('restrictionRule:rules', () => {
   const ruleTester = new RuleTester();
@@ -204,12 +205,12 @@ describe('restrictionRule:generator', () => {
         return from.includes('c.js')
           ? [
               {
-                to: './b',
+                to: adoptLocation('./b', process.cwd()),
                 type: 'restricted',
                 message: 'keep out',
               },
               {
-                from: './c/index.js',
+                from: adoptLocation('./c/index.js', process.cwd()),
                 type: 'restricted',
                 message: 'isolation',
               },

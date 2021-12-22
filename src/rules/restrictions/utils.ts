@@ -1,24 +1,39 @@
 import { resolve, relative } from 'path';
 
 import { globToRegExp } from '../../utils/glob-to-regex';
-import { SourceRule, RuleSchema, Rule } from './types';
+import { RestrictionRule, RuleSchema, Rule } from './types';
 
 const tryAsGlob = (location: string): RegExp | string =>
   location.includes('*') || location.includes('(') ? globToRegExp(location) : location;
 
-const adoptLocation = (location: string | RegExp | undefined, cwd: string): string | RegExp | undefined =>
-  typeof location === 'string' ? tryAsGlob(resolve(cwd, location)) : location;
+export const adoptPath = (location: string, cwd: string): string => (cwd ? resolve(cwd, location) : location);
+
+/**
+ * "adapts" a given location (path or glob) into internal formal (absolute path or regexp)
+ * @param location
+ * @param cwd
+ */
+export const adoptLocation = (location: string | RegExp | undefined, cwd: string): string | RegExp | undefined =>
+  typeof location === 'string' ? tryAsGlob(adoptPath(location, cwd)) : location;
 
 const locationDefined = (location: string | RegExp | undefined): location is string | RegExp =>
   Boolean(location && location !== '*');
 
+const matchRule = (location: string, rule: string | RegExp): boolean => {
+  if (typeof rule === 'string') {
+    return location === rule;
+  }
+
+  return Boolean(location.match(rule));
+};
+
 export const matching = (rule: Rule, from: string, to: string): Rule | false => {
   // matching other folder
-  if (locationDefined(rule.from) && !from.match(rule.from)) {
+  if (locationDefined(rule.from) && !matchRule(from, rule.from)) {
     return false;
   }
 
-  if (locationDefined(rule.to) && !to.match(rule.to)) {
+  if (locationDefined(rule.to) && !matchRule(to, rule.to)) {
     return false;
   }
 
@@ -50,7 +65,7 @@ export const matching = (rule: Rule, from: string, to: string): Rule | false => 
   return rule;
 };
 
-export const adoptRules = (rules: SourceRule[], location: string, file: string): Rule[] => {
+export const adoptRules = (rules: RestrictionRule[], location: string, file: string): Rule[] => {
   if (!Array.isArray(rules)) {
     console.log('wrong configuration at', file, rules, 'are not array');
     throw new Error('rules are not array');
@@ -72,7 +87,7 @@ export const adoptRules = (rules: SourceRule[], location: string, file: string):
   }));
 };
 
-export const asAdoptedRules = (rules: SourceRule[], cwd: string): (() => Rule[]) => {
+export const asAdoptedRules = (rules: RestrictionRule[], cwd: string): (() => Rule[]) => {
   const adopted = adoptRules(rules, cwd, 'eslint-config');
 
   return () => adopted;

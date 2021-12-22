@@ -1,6 +1,6 @@
 import Nope from 'nope-validator';
 
-export type SourceRule = {
+export type RestrictionRule = {
   from?: string | RegExp | undefined;
   to?: string | RegExp | undefined;
   // severity: 'error' | 'warn';
@@ -8,10 +8,12 @@ export type SourceRule = {
   message?: string;
 };
 
-export type Rule = SourceRule & {
-  sourceRule: SourceRule;
+export type Rule = RestrictionRule & {
+  sourceRule: RestrictionRule;
   file: string;
 };
+
+export type RuleGenerator = (from: string, to: string) => Rule[];
 
 export const RuleSchema = Nope.object().shape({
   from: Nope.string(),
