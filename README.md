@@ -139,6 +139,7 @@ module.exports = {
             // glob support!
             // note: 'pages/a' can assess 'pages/a', but not 'pages/b'
             to: 'pages/*',
+            from: '{app,packages}/*.{js,ts}', // note only [ and { "braces" are supported
             type: 'restricted',
             message: 'pages are isolated',
           },

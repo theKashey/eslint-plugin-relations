@@ -1,10 +1,10 @@
-import { resolve, relative } from 'path';
+import { resolve, relative, sep } from 'path';
 
 import { globToRegExp } from '../../utils/glob-to-regex';
 import { RestrictionRule, RuleSchema, Rule } from './types';
 
 const tryAsGlob = (location: string): RegExp | string =>
-  location.includes('*') || location.includes('(') ? globToRegExp(location) : location;
+  location.includes('*') || location.includes('{') ? globToRegExp(location) : location;
 
 export const adoptPath = (location: string, cwd: string): string => (cwd ? resolve(cwd, location) : location);
 
@@ -21,7 +21,7 @@ const locationDefined = (location: string | RegExp | undefined): location is str
 
 const matchRule = (location: string, rule: string | RegExp): boolean => {
   if (typeof rule === 'string') {
-    return location === rule;
+    return location === rule || location.startsWith(`${rule}${sep}`);
   }
 
   return Boolean(location.match(rule));
@@ -71,10 +71,10 @@ export const adoptRules = (rules: RestrictionRule[], location: string, file: str
     throw new Error('rules are not array');
   }
 
-  const error = rules.map((rule) => RuleSchema.validate(rule)).filter(Boolean);
+  const errors = rules.map((rule) => RuleSchema.validate(rule)).filter(Boolean);
 
-  if (error.length) {
-    console.error('at', file, ':\n', error.join('\n'));
+  if (errors.length) {
+    console.error('at', file, ':\n', errors);
     throw new Error('Wrong Rule Schema');
   }
 

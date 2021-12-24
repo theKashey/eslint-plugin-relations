@@ -44,4 +44,17 @@ describe('restrictionRule:helper', () => {
       })?.type
     ).toBe('restricted');
   });
+
+  it('glob-test', () => {
+    expect(
+      resolveRelation('./a', './test/b', {
+        rules: [
+          {
+            to: 'test/{b,c}',
+            type: 'restricted',
+          },
+        ],
+      })?.type
+    ).toBe('restricted');
+  });
 });

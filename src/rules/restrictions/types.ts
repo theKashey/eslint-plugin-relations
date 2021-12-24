@@ -4,7 +4,7 @@ export type RestrictionRule = {
   from?: string | RegExp | undefined;
   to?: string | RegExp | undefined;
   // severity: 'error' | 'warn';
-  type: 'restricted' | 'allowed';
+  type: 'restricted' | 'allowed' | 'skip';
   message?: string;
 };
 

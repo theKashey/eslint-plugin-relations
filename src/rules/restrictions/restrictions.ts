@@ -93,7 +93,7 @@ export const restrictionRule: Rule.RuleModule = {
                   node,
                   messageId: result.message ? 'importRestrictedWithMessage' : 'importRestricted',
                   data: {
-                    what: imported,
+                    what: relative ? imported : `${imported}(${relativePath(toLocation, undefined, cwd)})`,
                     from: relativePath(result.from, result.sourceRule?.from, cwd),
                     to: relativePath(result.to, result.sourceRule?.to, cwd),
                     configurationSource: result.file || 'generator',

@@ -4,6 +4,9 @@
 
 export const globToRegExp = (glob: string): RegExp => {
   const str = String(glob);
+  if (str.includes('(')) {
+    throw new Error(`Given: "${str}". 'glob-to-regexp' supports only {} matches. () are not supported`);
+  }
 
   // The regexp we are building, as a string.
   let reStr = '';
@@ -11,7 +14,7 @@ export const globToRegExp = (glob: string): RegExp => {
   // Whether we are matching so called "extended" globs (like bash) and should
   // support single character matching, matching ranges of characters, group
   // matching, etc.
-  const extended = false;
+  const extended = true;
 
   // When globstar is _false_ (default), '/foo/*' is translated a regexp like
   // '^\/foo\/.*$' which will match any string beginning with '/foo/'
