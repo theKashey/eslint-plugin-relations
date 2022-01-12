@@ -27,6 +27,25 @@ const matchRule = (location: string, rule: string | RegExp): boolean => {
   return Boolean(location.match(rule));
 };
 
+const allowDirectOrNested = (
+  ruleTarget: string | RegExp,
+  matchedIn: string,
+  matchedOut: string,
+  rule: Rule
+): Rule | false => {
+  if (typeof ruleTarget === 'string') {
+    return false;
+  }
+
+  const matched = (matchedIn.match(ruleTarget) || [])[0];
+
+  if (matchedOut.startsWith(matched)) {
+    return false;
+  }
+
+  return rule;
+};
+
 export const matching = (rule: Rule, from: string, to: string): Rule | false => {
   // matching other folder
   if (locationDefined(rule.from) && !matchRule(from, rule.from)) {
@@ -39,27 +58,11 @@ export const matching = (rule: Rule, from: string, to: string): Rule | false => 
 
   // partial match, check for "nested" vs "anything"
   if (locationDefined(rule.from) && to.match(rule.from)) {
-    if (typeof rule.from === 'string') {
-      return false;
-    }
-
-    const matched = (from.match(rule.from) || [])[0];
-
-    if (to.includes(matched)) {
-      return false;
-    }
+    return allowDirectOrNested(rule.from, from, to, rule);
   }
 
   if (locationDefined(rule.to) && from.match(rule.to)) {
-    if (typeof rule.to === 'string') {
-      return false;
-    }
-
-    const matched = (to.match(rule.to) || [])[0];
-
-    if (from.includes(matched)) {
-      return false;
-    }
+    return allowDirectOrNested(rule.to, to, from, rule);
   }
 
   return rule;
