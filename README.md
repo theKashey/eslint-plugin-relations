@@ -4,8 +4,8 @@ Controls relationships between folders and packages in a monorepo environment.
 
 # Provided rules
 
-- [relations/correct](#correct) - to autocorrect imports to only allowed paths.
-- [relations/restrictions](#restrictions) - to establish _controlled relationships_ between different places of your
+- [relations/correct-imports](#correct) - to autocorrect imports to only allowed paths.
+- [relations/restrict](#restrictions) - to establish _controlled relationships_ between different places of your
   application
 
 # Installation
@@ -50,7 +50,7 @@ module.exports = {
   plugins: ['relations'],
   rules: {
     //...
-    'relations/correct': [
+    'relations/correct-imports': [
       'error',
       {
         // if you use another tool to derive package->path mapping for typescript
@@ -121,7 +121,7 @@ module.exports = {
   plugins: ['relations'],
   rules: {
     //...
-    'relations/restrictions': [
+    'relations/restrict': [
       'error',
       {
         rules: [
@@ -177,7 +177,7 @@ module.exports = {
   plugins: ['relations'],
   rules: {
     //...
-    'relations/restrictions': [
+    'relations/restrict': [
       'error',
       {
         ruleGenerator: (fromFile, toFile) => [rule1, rule2],
