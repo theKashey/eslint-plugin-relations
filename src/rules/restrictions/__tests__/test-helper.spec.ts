@@ -57,4 +57,33 @@ describe('restrictionRule:helper', () => {
       })?.type
     ).toBe('restricted');
   });
+
+  describe('external-mapping', () => {
+    it('case default', () => {
+      expect(
+        resolveRelation('./a', 'package-b', {
+          rules: [
+            {
+              to: './b',
+              type: 'restricted',
+            },
+          ],
+        })?.type
+      ).toBe(undefined);
+    });
+
+    it('mapped', () => {
+      expect(
+        resolveRelation('./a', 'package-b', {
+          rules: [
+            {
+              to: './b',
+              type: 'restricted',
+            },
+          ],
+          pathMapping: { 'package-b': './b' },
+        })?.type
+      ).toBe('restricted');
+    });
+  });
 });

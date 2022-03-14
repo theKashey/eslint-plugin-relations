@@ -5,12 +5,13 @@
 import { resolve, dirname } from 'path';
 
 import { Rule } from 'eslint';
-import { buildWordTrie, SearchWordTrie } from 'search-trie';
+import { SearchWordTrie } from 'search-trie';
 
-import { filename, isRelative } from '../../utils/file';
-import { fromTSConfig } from './from-tsconfig';
+import { isRelative } from '../../utils/file';
+import { getMappingTrie, resolveMapping } from '../../utils/mapping';
+import { getReverseMappingTrie } from '../../utils/mapping/mapping';
+import { ConfigurationPathMapping } from '../../utils/mapping/types';
 import { isLocal } from './package-utils';
-import { ConfigurationPathMapping, PathMapping } from './types';
 
 type WordTrie = SearchWordTrie<string>;
 
@@ -27,16 +28,12 @@ const findReference = (absolutePath: string, lookUp: WordTrie): string | undefin
   return undefined;
 };
 
-const getMapping = (options: { tsconfig?: string; pathMapping?: ConfigurationPathMapping }): PathMapping => {
-  if (options.pathMapping) {
-    return Object.entries(options.pathMapping);
-  }
+const assertMapping = (options: { tsconfig?: string; pathMapping?: ConfigurationPathMapping }) => {
+  const mapping = resolveMapping(options);
 
-  if (options.tsconfig) {
-    return fromTSConfig(options.tsconfig);
+  if (!mapping) {
+    throw new Error('relations/correct requires of `tsconfig` or `pathMapping` configuration');
   }
-
-  throw new Error('relations/correct requires of `tsconfig` or `pathMapping` configuration');
 };
 
 export const correctImportRule: Rule.RuleModule = {
@@ -84,32 +81,13 @@ export const correctImportRule: Rule.RuleModule = {
     const pluginConfiguration = context.options[0] || {};
     const { autofix, tsconfig, pathMapping } = pluginConfiguration;
 
-    const uniMap = getMapping({ tsconfig, pathMapping });
+    const options = { tsconfig, pathMapping };
+    assertMapping(options);
 
     const currentFile = context.getFilename();
 
-    const fileTrie = buildWordTrie(
-      uniMap.map(([k, v]) => {
-        const path = filename(v);
-
-        return {
-          key: path.split('/'),
-          value: k,
-        };
-      })
-    );
-    const pathToName = buildWordTrie(
-      uniMap.map(([k, v]) => ({
-        key: v.split('/'),
-        value: k,
-      }))
-    );
-    const nameToPath = buildWordTrie(
-      uniMap.map(([k, v]) => ({
-        key: k.split('/'),
-        value: v,
-      }))
-    );
+    const pathToName = getMappingTrie(options);
+    const nameToPath = getReverseMappingTrie(options);
 
     return {
       ImportDeclaration(node) {
@@ -124,7 +102,7 @@ export const correctImportRule: Rule.RuleModule = {
 
         const ref = isRelativeImport
           ? // handle relative non-local files, like ../../other-package/stuff
-            findReference(resolve(dirname(currentFile), imported), fileTrie)
+            findReference(resolve(dirname(currentFile), imported), pathToName)
           : // handle absolute imports, other-packages/src/private-stuff
             findReference(
               // decode name -> file -> name

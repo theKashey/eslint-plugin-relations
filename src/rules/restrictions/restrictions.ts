@@ -3,6 +3,7 @@ import { dirname, resolve } from 'path';
 import type { Rule } from 'eslint';
 
 import { isRelative } from '../../utils/file';
+import { getReverseMappingTrie } from '../../utils/mapping';
 import { readRulesFromFileSystem } from './configuration-lookup';
 import { resolveAbsolutePath } from './resolver';
 import { matching, asAdoptedRules, relativePath } from './utils';
@@ -48,6 +49,14 @@ export const restrictionRule: Rule.RuleModule = {
             type: undefined,
             default: undefined,
           },
+          tsconfig: {
+            description: 'A path to tsconfig file.',
+            type: 'string',
+          },
+          pathMapping: {
+            description: "a mapping between a 'name' and a 'path'",
+            type: 'object',
+          },
         },
         additionalProperties: false,
       },
@@ -72,6 +81,8 @@ export const restrictionRule: Rule.RuleModule = {
       throw new Error('eslint-plugin-relations: rules and ruleGenerator cannot be used simultaneously.');
     }
 
+    const mappingTrie = getReverseMappingTrie(pluginConfiguration);
+
     return {
       ImportDeclaration(node) {
         const imported = node.source.value as string;
@@ -81,7 +92,9 @@ export const restrictionRule: Rule.RuleModule = {
           return;
         }
 
-        const toLocation = relative ? resolve(dirname(fromLocation), imported) : resolveAbsolutePath(imported, context);
+        const toLocation = relative
+          ? resolve(dirname(fromLocation), imported)
+          : resolveAbsolutePath(imported, context, mappingTrie);
 
         if (toLocation) {
           for (const rule of ruleGenerator(fromLocation, toLocation)) {
