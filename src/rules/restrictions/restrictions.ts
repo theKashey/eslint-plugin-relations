@@ -74,14 +74,14 @@ export const restrictionRule: Rule.RuleModule = {
     const fromLocation = context.getFilename();
     const customRules = pluginConfiguration.rules;
     const cwd = context.getCwd();
+    const mappingTrie = getReverseMappingTrie(pluginConfiguration);
+
     const ruleGenerator =
       pluginConfiguration.ruleGenerator || (customRules ? asAdoptedRules(customRules, cwd) : readRulesFromFileSystem);
 
     if (pluginConfiguration.rules && pluginConfiguration.ruleGenerator) {
       throw new Error('eslint-plugin-relations: rules and ruleGenerator cannot be used simultaneously.');
     }
-
-    const mappingTrie = getReverseMappingTrie(pluginConfiguration);
 
     return {
       ImportDeclaration(node) {

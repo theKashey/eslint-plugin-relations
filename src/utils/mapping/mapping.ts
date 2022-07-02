@@ -19,21 +19,20 @@ export const resolveMapping = (options: {
   return undefined;
 };
 
+const sortMapping = (pathMapping: PathMapping): PathMapping =>
+  pathMapping.sort(([key1], [key2]) => key2.length - key1.length);
+
 export const getMappingTrie = (options: {
   tsconfig?: string;
   pathMapping?: ConfigurationPathMapping;
 }): SearchWordTrie<string> => {
-  const uniMap = resolveMapping(options) || [];
+  const uniMap = sortMapping(resolveMapping(options) || []);
 
   return buildWordTrie(
-    uniMap.map(([k, v]) => {
-      const path = filename(v);
-
-      return {
-        key: path.split('/'),
-        value: k,
-      };
-    })
+    uniMap.map(([k, v]) => ({
+      key: filename(v).split('/'),
+      value: k,
+    }))
   );
 };
 
@@ -41,14 +40,12 @@ export const getReverseMappingTrie = (options: {
   tsconfig?: string;
   pathMapping?: ConfigurationPathMapping;
 }): SearchWordTrie<string> => {
-  const uniMap = resolveMapping(options) || [];
+  const uniMap = sortMapping(resolveMapping(options) || []);
 
   return buildWordTrie(
-    uniMap.map(([k, v]) => {
-      return {
-        key: k.split('/'),
-        value: v,
-      };
-    })
+    uniMap.map(([k, v]) => ({
+      key: k.split('/'),
+      value: filename(v),
+    }))
   );
 };

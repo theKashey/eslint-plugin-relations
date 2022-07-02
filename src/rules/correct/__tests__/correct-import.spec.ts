@@ -12,6 +12,9 @@ describe('correct-imports', () => {
       pathMapping: {
         a: 'a',
         'a/a': 'a/a',
+        'b/c': 'b/c.ts',
+        'b/b': 'b/b',
+        b: 'b',
       },
     },
   ];
@@ -23,6 +26,17 @@ describe('correct-imports', () => {
           code: `
           import a from 'a';
           import aa from 'a/a';
+          `,
+          options,
+        },
+        'c.js'
+      ),
+      ruleForModule(
+        {
+          code: `
+          import b from 'b';
+          import bb from 'b/b';
+          import aaa from 'b/c';
           `,
           options,
         },
