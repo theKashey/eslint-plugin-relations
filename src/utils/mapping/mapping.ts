@@ -36,16 +36,19 @@ export const getMappingTrie = (options: {
   );
 };
 
-export const getReverseMappingTrie = (options: {
-  tsconfig?: string;
-  pathMapping?: ConfigurationPathMapping;
-}): SearchWordTrie<string> => {
+export const getReverseMappingTrie = (
+  options: {
+    tsconfig?: string;
+    pathMapping?: ConfigurationPathMapping;
+  },
+  { extractFile }: { extractFile?: boolean } = {}
+): SearchWordTrie<string> => {
   const uniMap = sortMapping(resolveMapping(options) || []);
 
   return buildWordTrie(
     uniMap.map(([k, v]) => ({
       key: k.split('/'),
-      value: filename(v),
+      value: extractFile ? filename(v) : v,
     }))
   );
 };

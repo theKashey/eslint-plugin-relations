@@ -8,8 +8,7 @@ import { Rule } from 'eslint';
 import { SearchWordTrie } from 'search-trie';
 
 import { isRelative } from '../../utils/file';
-import { getMappingTrie, resolveMapping } from '../../utils/mapping';
-import { getReverseMappingTrie } from '../../utils/mapping/mapping';
+import { getMappingTrie, resolveMapping, getReverseMappingTrie } from '../../utils/mapping';
 import { ConfigurationPathMapping } from '../../utils/mapping/types';
 import { isLocal } from './package-utils';
 
@@ -80,14 +79,14 @@ export const correctImportRule: Rule.RuleModule = {
   create(context) {
     const pluginConfiguration = context.options[0] || {};
     const { autofix, tsconfig, pathMapping } = pluginConfiguration;
+    assertMapping(pluginConfiguration);
 
     const options = { tsconfig, pathMapping };
-    assertMapping(options);
-
-    const currentFile = context.getFilename();
 
     const pathToName = getMappingTrie(options);
-    const nameToPath = getReverseMappingTrie(options);
+    const nameToPath = getReverseMappingTrie(options, { extractFile: true });
+
+    const currentFile = context.getFilename();
 
     return {
       ImportDeclaration(node) {

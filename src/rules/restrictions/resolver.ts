@@ -17,17 +17,26 @@ export const tryMappedPath = (path: string, mapping: SearchWordTrie<string>): st
   return undefined;
 };
 
+export const isVirtualLink = (filename: string): boolean => filename.includes('.yarn/__virtual__/');
+
 export const resolveAbsolutePath = (
   path: string,
   context: Rule.RuleContext,
   mapping: SearchWordTrie<string>
 ): string | undefined => {
-  const resolved: string | undefined = tryMappedPath(path, mapping) || resolve(path, context);
+  const mappedResolution = tryMappedPath(path, mapping);
+
+  if (mappedResolution) {
+    return mappedResolution;
+  }
+
+  const resolved: string | undefined = resolve(path, context);
 
   if (!resolved) {
     return resolved;
   }
 
+  // decode symlink to a real path
   if (!mappingCache[resolved]) {
     mappingCache[resolved] = realpathSync(resolved);
   }
