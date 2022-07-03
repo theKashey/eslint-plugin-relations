@@ -8,7 +8,7 @@ import { Rule } from 'eslint';
 import { SearchWordTrie } from 'search-trie';
 
 import { isRelative } from '../../utils/file';
-import { getMappingTrie, resolveMapping, getReverseMappingTrie } from '../../utils/mapping';
+import { getMappingTrie, resolveMapping, getShortReverseMappingTrie } from '../../utils/mapping';
 import { ConfigurationPathMapping } from '../../utils/mapping/types';
 import { isLocal } from './package-utils';
 
@@ -34,6 +34,8 @@ const assertMapping = (options: { tsconfig?: string; pathMapping?: Configuration
     throw new Error('relations/correct requires of `tsconfig` or `pathMapping` configuration');
   }
 };
+
+const EMPTY_OBJECT = {};
 
 export const correctImportRule: Rule.RuleModule = {
   meta: {
@@ -77,14 +79,12 @@ export const correctImportRule: Rule.RuleModule = {
     },
   },
   create(context) {
-    const pluginConfiguration = context.options[0] || {};
-    const { autofix, tsconfig, pathMapping } = pluginConfiguration;
+    const pluginConfiguration = context.options[0] || EMPTY_OBJECT;
+    const { autofix } = pluginConfiguration;
     assertMapping(pluginConfiguration);
 
-    const options = { tsconfig, pathMapping };
-
-    const pathToName = getMappingTrie(options);
-    const nameToPath = getReverseMappingTrie(options, { extractFile: true });
+    const pathToName = getMappingTrie(pluginConfiguration);
+    const nameToPath = getShortReverseMappingTrie(pluginConfiguration);
 
     const currentFile = context.getFilename();
 

@@ -36,6 +36,7 @@
     "eslint-module-utils": "^2.6.1",
     "find-up": "^5.0.0",
     "json5": "^2.2.0",
+    "kashe": "^1.0.4",
     "nope-validator": "^1.0.2",
     "search-trie": "^2.1.0",
     "tslib": "^2.0.0"
