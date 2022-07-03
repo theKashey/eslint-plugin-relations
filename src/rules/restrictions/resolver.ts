@@ -17,7 +17,8 @@ export const tryMappedPath = (path: string, mapping: SearchWordTrie<string>): st
   return undefined;
 };
 
-export const isVirtualLink = (filename: string): boolean => filename.includes('.yarn/__virtual__/');
+export const isVirtualLink = (filename: string): boolean =>
+  filename.includes('.yarn/__virtual__/') && !filename.includes('/cache/');
 
 export const resolveAbsolutePath = (
   path: string,
