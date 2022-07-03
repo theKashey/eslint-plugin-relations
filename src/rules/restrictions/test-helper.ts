@@ -1,9 +1,14 @@
+import { getReverseMappingTrie } from '../../utils/mapping';
+import { ConfigurationPathMapping } from '../../utils/mapping/types';
 import { readRulesFromFileSystem } from './configuration-lookup';
+import { tryMappedPath } from './resolver';
 import { RuleGenerator, RestrictionRule } from './types';
 import { adoptPath, asAdoptedRules, matching } from './utils';
 
 type Options = {
   cwd?: string;
+  tsconfig?: string;
+  pathMapping?: ConfigurationPathMapping;
 } & (
   | {
       rules: RestrictionRule[];
@@ -39,9 +44,10 @@ export const resolveRelation = (
   const ruleGenerator =
     pluginConfiguration.ruleGenerator ||
     (pluginConfiguration.rules ? asAdoptedRules(pluginConfiguration.rules, cwd) : readRulesFromFileSystem);
+  const mappingTrie = getReverseMappingTrie(pluginConfiguration);
 
   const fromLocation = adoptPath(from, cwd);
-  const toLocation = adoptPath(to, cwd);
+  const toLocation = adoptPath(tryMappedPath(to, mappingTrie) ?? to, cwd);
 
   const rules = ruleGenerator(fromLocation, toLocation);
 

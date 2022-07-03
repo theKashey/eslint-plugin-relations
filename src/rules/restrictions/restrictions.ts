@@ -3,8 +3,9 @@ import { dirname, resolve } from 'path';
 import type { Rule } from 'eslint';
 
 import { isRelative } from '../../utils/file';
+import { getReverseMappingTrie } from '../../utils/mapping';
 import { readRulesFromFileSystem } from './configuration-lookup';
-import { resolveAbsolutePath } from './resolver';
+import { isVirtualLink, resolveAbsolutePath } from './resolver';
 import { matching, asAdoptedRules, relativePath } from './utils';
 
 export const restrictionRule: Rule.RuleModule = {
@@ -48,6 +49,14 @@ export const restrictionRule: Rule.RuleModule = {
             type: undefined,
             default: undefined,
           },
+          tsconfig: {
+            description: 'A path to tsconfig file.',
+            type: 'string',
+          },
+          pathMapping: {
+            description: "a mapping between a 'name' and a 'path'",
+            type: 'object',
+          },
         },
         additionalProperties: false,
       },
@@ -65,6 +74,8 @@ export const restrictionRule: Rule.RuleModule = {
     const fromLocation = context.getFilename();
     const customRules = pluginConfiguration.rules;
     const cwd = context.getCwd();
+    const mappingTrie = getReverseMappingTrie(pluginConfiguration);
+
     const ruleGenerator =
       pluginConfiguration.ruleGenerator || (customRules ? asAdoptedRules(customRules, cwd) : readRulesFromFileSystem);
 
@@ -81,9 +92,19 @@ export const restrictionRule: Rule.RuleModule = {
           return;
         }
 
-        const toLocation = relative ? resolve(dirname(fromLocation), imported) : resolveAbsolutePath(imported, context);
+        const toLocation = relative
+          ? resolve(dirname(fromLocation), imported)
+          : resolveAbsolutePath(imported, context, mappingTrie);
 
         if (toLocation) {
+          if (isVirtualLink(toLocation)) {
+            console.error(
+              `"${imported}" was resolved into "${toLocation}". Relations do not support virtual links, please specify mapping.`
+            );
+
+            throw new Error('eslint-plugin-relations is misconfigured');
+          }
+
           for (const rule of ruleGenerator(fromLocation, toLocation)) {
             const result = matching(rule, fromLocation, toLocation);
 
