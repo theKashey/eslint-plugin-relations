@@ -253,6 +253,7 @@ resolveRelation(from, to, { cwd: baseDir }); // => Rule | undefined
   is very close to this one, with slightly different configuration and reporting, but the same idea
 - [depcheck](https://github.com/depcheck/depcheck) - we strongly recommend using `depcheck` to keep your package
   relations up-to-date.
+- [eslint dependencies-relation](https://github.com/YutamaKotaro/eslint-plugin-dependencies-relation) - an annonation based relation control 
 
 # Speed
 
