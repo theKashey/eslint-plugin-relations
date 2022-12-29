@@ -58,6 +58,32 @@ describe('restrictionRule:helper', () => {
     ).toBe('restricted');
   });
 
+  it('relative test', () => {
+    const rules: RestrictionRule[] = [
+      {
+        to: '.',
+        from: './*',
+        type: 'allowed',
+      },
+      {
+        to: '.',
+        type: 'restricted',
+      },
+    ];
+
+    expect(
+      resolveRelation('../external-folder', './b', {
+        rules,
+      })?.type
+    ).toBe('restricted');
+
+    expect(
+      resolveRelation('./anywhere-inside', './other-place-iside', {
+        rules,
+      })?.type
+    ).toBe('allowed');
+  });
+
   describe('external-mapping', () => {
     it('case default', () => {
       expect(
